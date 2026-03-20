@@ -3,64 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Retour-flow simulator</title>
+<title>Retour-flow - overzicht en impact</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; line-height: 1.5; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; line-height: 1.6; }
 
-  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
 
   h1 { font-size: 1.4em; margin-bottom: 4px; }
   .subtitle { color: #666; font-size: 0.9em; margin-bottom: 20px; }
 
-  /* Toggle */
-  .mode-toggle {
-    background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 16px;
-    flex-wrap: wrap;
+  /* Intro */
+  .intro {
+    background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 0.92em;
   }
-  .mode-toggle label { font-weight: 600; font-size: 0.95em; }
-  .toggle-switch { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
-  .toggle-switch input { opacity: 0; width: 0; height: 0; }
-  .toggle-slider {
-    position: absolute; inset: 0; background: #ccc; border-radius: 26px; cursor: pointer;
-    transition: background 0.2s;
+  .intro h2 { font-size: 1.05em; margin-bottom: 8px; }
+  .intro p { margin-bottom: 8px; }
+  .intro .tradeoff {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
   }
-  .toggle-slider::before {
-    content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
-    background: #fff; border-radius: 50%; transition: transform 0.2s;
+  @media (max-width: 700px) { .intro .tradeoff { grid-template-columns: 1fr; } }
+  .tradeoff-card {
+    padding: 12px 16px; border-radius: 8px; font-size: 0.9em;
   }
-  .toggle-switch input:checked + .toggle-slider { background: #2563eb; }
-  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
-  .mode-desc { font-size: 0.85em; color: #666; }
-  .mode-desc.auto { color: #2563eb; }
+  .tradeoff-card.pro { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .tradeoff-card.con { background: #fef2f2; border: 1px solid #fecaca; }
+  .tradeoff-card strong { display: block; margin-bottom: 4px; }
 
   /* Layout */
-  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
   @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
 
-  /* Setup panel */
+  /* Panel */
   .panel { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .panel h2 { font-size: 1.05em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
 
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 0.85em; color: #555; margin-bottom: 2px; }
   .field input {
-    width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
-    font-size: 0.95em;
+    width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95em;
   }
   .field input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
-  .field input[readonly] { background: #f9fafb; color: #888; }
   .field-row { display: flex; gap: 10px; }
   .field-row .field { flex: 1; }
-
   .divider { border: none; border-top: 1px solid #e5e7eb; margin: 16px 0; }
 
   /* Steps */
   .steps { display: flex; flex-direction: column; gap: 16px; }
-  .step { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .step {
+    background: #fff; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
   .step.inactive { opacity: 0.4; pointer-events: none; }
-  .step h3 { font-size: 0.95em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .step h3 {
+    font-size: 0.95em; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
   .step-num {
     display: inline-flex; align-items: center; justify-content: center;
     width: 24px; height: 24px; border-radius: 50%; background: #e5e7eb;
@@ -77,11 +76,19 @@
   .btn-primary:hover { background: #1d4ed8; }
   .btn-secondary { background: #e5e7eb; color: #333; }
   .btn-secondary:hover { background: #d1d5db; }
-  .btn-danger { background: #dc2626; color: #fff; }
-  .btn-danger:hover { background: #b91c1c; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
   .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  /* Choice cards */
+  .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 700px) { .choice-row { grid-template-columns: 1fr; } }
+  .choice-card {
+    padding: 16px; border-radius: 10px; cursor: pointer;
+    border: 2px solid #d1d5db; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .choice-card:hover { border-color: #2563eb; box-shadow: 0 2px 8px rgba(37,99,235,0.15); }
+  .choice-card h4 { font-size: 0.95em; margin-bottom: 6px; }
+  .choice-card p { font-size: 0.85em; color: #555; margin: 0; }
 
   /* VK tables */
   .vk-card { margin-top: 10px; }
@@ -90,7 +97,6 @@
   th { text-align: left; padding: 6px 8px; background: #f9fafb; border-bottom: 2px solid #e5e7eb; font-weight: 600; }
   td { padding: 5px 8px; border-bottom: 1px solid #f0f0f0; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  tr.new-line td { background: #eff6ff; }
   tr.retour-line td { background: #fef2f2; }
   tr.overdracht-line td { background: #fefce8; }
   tr.totaal td { font-weight: 700; border-top: 2px solid #e5e7eb; background: #f9fafb; }
@@ -98,29 +104,20 @@
   tr.saldo.ok td { color: #16a34a; }
   tr.saldo.open td { color: #dc2626; }
   tr.saldo.credit td { color: #2563eb; }
+  tr.new-line td { background: #eff6ff; }
 
   .tag {
     display: inline-block; font-size: 0.75em; padding: 1px 6px; border-radius: 4px;
     font-weight: 600; margin-left: 4px;
   }
-  .tag-new { background: #dbeafe; color: #1d4ed8; }
   .tag-retour { background: #fee2e2; color: #dc2626; }
   .tag-overdracht { background: #fef9c3; color: #a16207; }
-  .tag-service { background: #f3e8ff; color: #7c3aed; }
+  .tag-new { background: #dbeafe; color: #1d4ed8; }
 
-  /* Saldo -> Service popup */
-  .popup-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-    z-index: 100; align-items: center; justify-content: center;
-  }
-  .popup-overlay.visible { display: flex; }
-  .popup {
-    background: #fff; border-radius: 12px; padding: 24px; width: 340px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-  }
-  .popup h3 { margin-bottom: 12px; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
+  @media (max-width: 700px) { .comparison { grid-template-columns: 1fr; } }
 
-  /* Warning */
+  /* Info/warning boxes */
   .warning {
     background: #fef9c3; border: 1px solid #fde047; border-radius: 8px;
     padding: 10px 14px; font-size: 0.85em; margin-top: 10px; color: #854d0e;
@@ -129,11 +126,16 @@
     background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px;
     padding: 10px 14px; font-size: 0.85em; margin-top: 10px; color: #1e40af;
   }
+  .success {
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;
+    padding: 10px 14px; font-size: 0.85em; margin-top: 10px; color: #166534;
+  }
+  .error {
+    background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+    padding: 10px 14px; font-size: 0.85em; margin-top: 10px; color: #991b1b;
+  }
 
-  /* Comparison */
-  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
-  @media (max-width: 700px) { .comparison { grid-template-columns: 1fr; } }
-
+  /* Phone frame */
   .phone-frame {
     border: 3px solid #d1d5db; border-radius: 16px; padding: 12px; background: #f9fafb;
   }
@@ -144,7 +146,6 @@
   }
   .phone-field .label { color: #555; }
   .phone-field .value { font-weight: 600; font-variant-numeric: tabular-nums; }
-  .phone-field .value.negative { color: #dc2626; }
   .phone-btn {
     display: block; width: 100%; margin-top: 8px; padding: 10px;
     background: #2563eb; color: #fff; border: none; border-radius: 8px;
@@ -153,31 +154,49 @@
   .phone-btn:hover { background: #1d4ed8; }
   .phone-btn.grey { background: #6b7280; }
   .phone-btn.grey:hover { background: #4b5563; }
-
-  .reset-bar { margin-top: 20px; text-align: center; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Retour-flow simulator - Slaapadvies</h1>
-  <p class="subtitle">Simuleer wat er gebeurt wanneer een chauffeur een artikel retourneert via de webapp</p>
+  <h1>Retour-flow chauffeurs - overzicht</h1>
+  <p class="subtitle">Wat gebeurt er als een chauffeur een artikel retourneert? En wat is het effect op de verkopen?</p>
 
-  <div class="mode-toggle">
-    <label>Modus:</label>
-    <span class="mode-desc" id="modeLabel">Huidige werking - chauffeur moet zelf bedrag uitrekenen</span>
-    <div class="toggle-switch">
-      <input type="checkbox" id="autoMode">
-      <span class="toggle-slider" onclick="document.getElementById('autoMode').click()"></span>
+  <div class="intro">
+    <h2>Achtergrond</h2>
+    <p>
+      De huidige retour-flow werd destijds in samenspraak met Audrey ontworpen. Bij een retour maakt het
+      systeem automatisch een <strong>overdrachtsartikel</strong> aan. Dit zorgt ervoor dat het
+      <strong>totaal van de originele verkoop</strong> (en daarmee de statistiekwaarde) bewaard blijft.
+    </p>
+    <p>
+      Daarnaast bestaat er de optie <strong>"Saldo -> Service"</strong> waarmee de chauffeur het openstaande
+      saldo kan overzetten naar de service-verkoop. Dit is vermoedelijk later toegevoegd, ook in samenspraak
+      met jullie, maar er zijn geen duidelijke afspraken wanneer dit wel of niet gebruikt moet worden.
+    </p>
+    <p>
+      Beide aanpakken hebben voor- en nadelen. <strong>Met deze simulator kunt u beide scenario's
+      uitproberen</strong> en het verschil zien.
+    </p>
+    <div class="tradeoff">
+      <div class="tradeoff-card pro">
+        <strong>Saldo WEL overzetten</strong>
+        Het openstaande saldo verhuist correct naar de service-verkoop. De chauffeur bij de vervolglevering
+        ziet het juiste te innen bedrag. Maar: het totaal van de originele verkoop verandert (impact op statistiek).
+      </div>
+      <div class="tradeoff-card con">
+        <strong>Saldo NIET overzetten</strong>
+        Het totaal van de originele verkoop blijft ongewijzigd (statistiek klopt). Maar: het openstaande bedrag
+        blijft op de originele verkoop staan en is niet zichtbaar bij de vervolglevering van de service-verkoop.
+      </div>
     </div>
-    <span class="mode-desc auto" id="autoLabel" style="display:none">Voorstel - bedrag voorgesteld bij "Saldo -> Service", waarschuwing bij vergeten</span>
   </div>
 
   <div class="layout">
     <!-- Left: Setup -->
     <div>
       <div class="panel">
-        <h2>Verkoop instellen</h2>
+        <h2>Scenario instellen</h2>
         <div class="field">
           <label>Artikel 1 (wordt geretourneerd)</label>
           <div class="field-row">
@@ -199,7 +218,7 @@
         </div>
         <hr class="divider">
         <div class="field">
-          <label>Vervangartikel op service VK (voor vervolglevering)</label>
+          <label>Vervangartikel (voor de vervolglevering)</label>
           <div class="field-row">
             <div class="field"><label>Naam</label><input id="replName" value="Nieuwe matras"></div>
             <div class="field"><label>Bedrag</label><input id="replPrice" type="number" value="600"></div>
@@ -224,81 +243,40 @@
 
     <!-- Right: Steps -->
     <div class="steps" id="stepsContainer">
-      <!-- Step 1: Voor levering -->
       <div class="step" id="step1">
-        <h3><span class="step-num">1</span> Voor levering</h3>
+        <h3><span class="step-num">1</span> Uitgangssituatie</h3>
         <div id="step1Content"></div>
       </div>
 
-      <!-- Step 2: Chauffeur markeert retour -->
       <div class="step inactive" id="step2">
-        <h3><span class="step-num">2</span> Chauffeur markeert retour</h3>
+        <h3><span class="step-num">2</span> Chauffeur is bij de klant</h3>
         <div id="step2Content"></div>
       </div>
 
-      <!-- Step 3: Betalen tab -->
       <div class="step inactive" id="step3">
-        <h3><span class="step-num">3</span> "Betalen"-tab (wat de chauffeur ziet)</h3>
+        <h3><span class="step-num">3</span> Betalen</h3>
         <div id="step3Content"></div>
       </div>
 
-      <!-- Step 4: Afronden -->
       <div class="step inactive" id="step4">
-        <h3><span class="step-num">4</span> Afronden (FinishCurrentBonve)</h3>
+        <h3><span class="step-num">4</span> Handtekening en afronden</h3>
         <div id="step4Content"></div>
       </div>
 
-      <!-- Step 5: Resultaat -->
       <div class="step inactive" id="step5">
         <h3><span class="step-num">5</span> Resultaat na afronden</h3>
         <div id="step5Content"></div>
       </div>
 
-      <!-- Step 6: Vervolglevering -->
       <div class="step inactive" id="step6">
-        <h3><span class="step-num">6</span> Vervolglevering (vervangartikel op service VK)</h3>
+        <h3><span class="step-num">6</span> Vervolglevering</h3>
         <div id="step6Content"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Popup: Saldo overzetten -->
-<div class="popup-overlay" id="saldoPopup">
-  <div class="popup">
-    <h3>Saldo overzetten</h3>
-    <div class="field">
-      <label>Bedrag</label>
-      <input id="popupAmount" type="number" value="0" step="0.01">
-    </div>
-    <div class="btn-row" style="margin-top:14px">
-      <button class="btn btn-primary" onclick="confirmSaldoPopup()">Overzetten</button>
-      <button class="btn btn-secondary" onclick="closeSaldoPopup()">Annuleren</button>
-    </div>
-  </div>
-</div>
-
-<!-- Popup: Waarschuwing bij afronden zonder saldo-overdracht -->
-<div class="popup-overlay" id="warningPopup">
-  <div class="popup">
-    <h3 style="color:#854d0e">Saldo niet overgezet</h3>
-    <p style="font-size:0.9em;margin-bottom:10px">
-      Het berekende bedrag voor saldo-overdracht is <strong id="warningAmount"></strong>.
-      Je hebt "Saldo -> Service" niet gebruikt.
-    </p>
-    <p style="font-size:0.85em;color:#666;margin-bottom:14px">
-      Als je doorgaat zonder overbrenging, blijft het saldo op de originele VK staan.
-      Ga terug om het saldo alsnog over te brengen, of ga bewust door.
-    </p>
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="closeWarningAndGoBack()">Terug (saldo overbrengen)</button>
-      <button class="btn btn-danger" onclick="confirmSkipBalance()">Doorgaan zonder overbrenging</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// State
 let state = {};
 
 function fmt(n) {
@@ -323,7 +301,6 @@ function activateStep(n) {
   const step = document.getElementById('step' + n);
   step.classList.remove('inactive');
   step.classList.add('active');
-  // Mark previous as done
   for (let i = 1; i < n; i++) {
     document.getElementById('step' + i).classList.remove('active');
     document.getElementById('step' + i).classList.add('done');
@@ -331,15 +308,26 @@ function activateStep(n) {
   setTimeout(() => step.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
-function isAutoMode() {
-  return document.getElementById('autoMode').checked;
+function renderVK(title, lines, totaal, payments, saldo, options) {
+  const { highlight } = options || {};
+  const saldoClass = saldo === 0 ? 'ok' : (saldo < 0 ? 'credit' : 'open');
+  const saldoLabel = saldo === 0 ? 'Afgehandeld' : (saldo < 0 ? 'Tegoed klant' : 'Openstaand');
+  let html = `<div class="vk-card"><h4>${title}</h4><table>
+    <tr><th>Artikel</th><th style="text-align:right">Bedrag</th></tr>`;
+  lines.forEach(l => {
+    const tagHtml = l.tag ? ` <span class="tag tag-${l.tag}">${l.tag}</span>` : '';
+    html += `<tr class="${l.cls || ''}"><td>${l.name}${tagHtml}</td><td class="num">${fmt(l.amount)}</td></tr>`;
+  });
+  html += `<tr class="totaal"><td>Totaal verkooplijnen${highlight === 'totaal' ? ' <span style="font-size:0.8em;color:#dc2626">*</span>' : ''}</td><td class="num">${fmt(totaal)}</td></tr>`;
+  payments.forEach(p => {
+    html += `<tr><td>${p.name}</td><td class="num">-${fmt(p.amount)}</td></tr>`;
+  });
+  html += `<tr class="saldo ${saldoClass}"><td>Saldo (${saldoLabel})</td><td class="num">${fmt(saldo)}</td></tr>`;
+  html += `</table></div>`;
+  return html;
 }
 
-document.getElementById('autoMode').addEventListener('change', function() {
-  document.getElementById('modeLabel').style.display = this.checked ? 'none' : '';
-  document.getElementById('autoLabel').style.display = this.checked ? '' : 'none';
-  resetAll();
-});
+// ── Step 1: Uitgangssituatie ──
 
 function startSimulation() {
   resetAll();
@@ -349,50 +337,44 @@ function startSimulation() {
   const art2Name = document.getElementById('art2Name').value || 'Artikel 2';
   const art2Price = parseFloat(document.getElementById('art2Price').value) || 0;
   const voorschot = parseFloat(document.getElementById('voorschot').value) || 0;
-
   const totaal = art1Price + art2Price;
   const saldo = totaal - voorschot;
 
-  state = { art1Name, art1Price, art2Name, art2Price, voorschot, totaal, saldo, z156: 0, chauffeurPayment: 0 };
+  state = { art1Name, art1Price, art2Name, art2Price, voorschot, totaal, saldo };
 
-  // Step 1: Voor levering
   activateStep(1);
   document.getElementById('step1Content').innerHTML = `
-    <div class="vk-card">
-      <h4>VK 1234 (origineel)</h4>
-      <table>
-        <tr><th>Lijn</th><th>Artikel</th><th style="text-align:right">Bedrag</th></tr>
-        <tr><td>1</td><td>${art1Name}</td><td class="num">${fmt(art1Price)}</td></tr>
-        <tr><td>2</td><td>${art2Name}</td><td class="num">${fmt(art2Price)}</td></tr>
-        <tr class="totaal"><td></td><td>Totaal verkooplijnen</td><td class="num">${fmt(totaal)}</td></tr>
-        <tr><td></td><td>Reeds betaald (voorschot)</td><td class="num">-${fmt(voorschot)}</td></tr>
-        <tr class="saldo ${saldo > 0 ? 'open' : 'ok'}"><td></td><td>Openstaand saldo</td><td class="num">${fmt(saldo)}</td></tr>
-      </table>
-    </div>
+    ${renderVK('Originele verkoop', [
+      { name: art1Name, amount: art1Price },
+      { name: art2Name, amount: art2Price },
+    ], totaal, voorschot > 0 ? [{ name: 'Voorschot', amount: voorschot }] : [], saldo)}
     <div class="btn-row">
       <button class="btn btn-primary" onclick="step2()">Chauffeur begint levering</button>
     </div>
   `;
 }
 
+// ── Step 2: Retour markeren ──
+
 function step2() {
   activateStep(2);
   document.getElementById('step2Content').innerHTML = `
-    <p style="font-size:0.9em;margin-bottom:8px">Chauffeur is bij de klant. Per artikel kiest hij een leveringsstatus:</p>
+    <p style="font-size:0.9em;margin-bottom:8px">De chauffeur is bij de klant en stelt per artikel de leveringsstatus in:</p>
     <div style="display:flex;flex-direction:column;gap:6px">
       <div style="padding:10px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0">
-        <strong>${state.art2Name}</strong> - <span style="color:#16a34a">Alles goed geleverd</span>
+        <strong>${state.art2Name}</strong> - geleverd
       </div>
       <div style="padding:10px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca">
-        <strong>${state.art1Name}</strong> - <span style="color:#dc2626">Retour volledig artikel (service)</span>
+        <strong>${state.art1Name}</strong> - retour (service)
       </div>
     </div>
-    <div class="info">Op dit moment verandert er financieel nog niets. Enkel BONLN.Z38126 = 2 wordt gezet.</div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="step3()">Naar "Betalen"-tab</button>
+      <button class="btn btn-primary" onclick="step3()">Naar betalen</button>
     </div>
   `;
 }
+
+// ── Step 3: Betalen ──
 
 function step3() {
   activateStep(3);
@@ -402,13 +384,9 @@ function step3() {
 
   document.getElementById('step3Content').innerHTML = `
     <div class="phone-frame">
-      <h4>Webapp - Betalen</h4>
+      <h4>Wat de chauffeur ziet - Betalen</h4>
       <div class="phone-field">
-        <span class="label">Totaal</span>
-        <span class="value">${fmt(state.totaal)}</span>
-      </div>
-      <div class="phone-field">
-        <span class="label">Saldo te betalen</span>
+        <span class="label">Openstaand saldo</span>
         <span class="value">${fmt(displaySaldo)}</span>
       </div>
       <div class="phone-field">
@@ -419,10 +397,9 @@ function step3() {
       <button class="phone-btn" onclick="registerPayment()">Betaling registreren</button>
     </div>
     <div class="warning">
-      De app stelt het volledige openstaande saldo <strong>${fmt(displaySaldo)}</strong> voor als betaling
-      (via DeliveryPaymentDueAmount). De retourlijn wordt pas bij het afronden aangemaakt, dus de app weet
-      nog niet dat de klant logisch gezien maar <strong>${fmt(logischBedrag)}</strong> hoeft te betalen.
-      De chauffeur moet het bedrag zelf aanpassen.
+      De app toont het volledige openstaande saldo (<strong>${fmt(displaySaldo)}</strong>) als voorgestelde
+      betaling. Door de retour hoeft de klant eigenlijk maar <strong>${fmt(logischBedrag)}</strong> te betalen,
+      maar dat weet de app op dit moment nog niet - de retourlijn wordt pas bij het afronden verwerkt.
     </div>
     <div id="step3Actions" style="display:none"></div>
   `;
@@ -431,183 +408,124 @@ function step3() {
 function registerPayment() {
   state.chauffeurPayment = parseFloat(document.getElementById('chauffeurPayment').value) || 0;
   state.saldoNaBetaling = state.saldo - state.chauffeurPayment;
-  state.autoZ156 = Math.max(0, state.saldoNaBetaling);
-
-  const saldoHint = isAutoMode() && state.autoZ156 > 0
-    ? `<span style="font-size:0.85em;color:#2563eb;margin-left:4px">(voorgesteld: ${fmt(state.autoZ156)})</span>` : '';
 
   document.getElementById('step3Actions').innerHTML = `
     <div class="info">
       Chauffeur int <strong>${fmt(state.chauffeurPayment)}</strong>.
-      Openstaand saldo na betaling: <strong>${fmt(state.saldoNaBetaling)}</strong>
+      Resterend saldo: <strong>${fmt(state.saldoNaBetaling)}</strong>
     </div>
-    <div id="step3SaldoResult"></div>
-    <div class="btn-row" id="step3Buttons">
-      <button class="btn btn-secondary" onclick="openSaldoTransfer()">Saldo -> Service ${saldoHint}</button>
-      <button class="btn btn-primary" onclick="finishDelivery()">Levering afronden</button>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="step4()">Naar handtekening</button>
     </div>
   `;
   document.getElementById('step3Actions').style.display = 'block';
 }
 
-function openSaldoTransfer() {
-  // In new mode: pre-fill with calculated amount. In old mode: 0 (like current app)
-  const prefill = isAutoMode() ? state.autoZ156 : 0;
-  document.getElementById('popupAmount').value = prefill;
-  document.getElementById('saldoPopup').classList.add('visible');
-}
+// ── Step 4: Handtekening en afronden ──
 
-function closeSaldoPopup() {
-  document.getElementById('saldoPopup').classList.remove('visible');
-}
-
-function confirmSaldoPopup() {
-  state.z156 = parseFloat(document.getElementById('popupAmount').value) || 0;
-  state.z156Source = 'chauffeur';
-  document.getElementById('saldoPopup').classList.remove('visible');
-
-  const newDisplaySaldo = state.saldo - state.z156;
-
-  // Update step 3 inline - show result of saldo transfer
-  document.getElementById('step3SaldoResult').innerHTML = `
-    <div class="info" style="margin-top:10px">
-      <strong>Saldo overgezet: ${fmt(state.z156)}</strong> (BONVE.Z156)
-      ${isAutoMode() && state.z156 !== state.autoZ156 ? `<br><span style="font-size:0.85em;color:#666">(Systeem had ${fmt(state.autoZ156)} voorgesteld)</span>` : ''}
-    </div>
-    <div class="phone-frame" style="margin-top:8px">
-      <h4>Webapp - Betalen (bijgewerkt)</h4>
-      <div class="phone-field">
-        <span class="label">Saldo te betalen</span>
-        <span class="value ${newDisplaySaldo < 0 ? 'negative' : ''}">${fmt(newDisplaySaldo)}</span>
-      </div>
-      <div class="phone-field">
-        <span class="label">Betaling</span>
-        <span class="value">${fmt(state.chauffeurPayment)}</span>
-      </div>
-    </div>
-    ${newDisplaySaldo < 0 ? `<div class="warning">Negatief saldo! De klant heeft meer betaald dan de resterende waarde.</div>` : ''}
-  `;
-
-  // Update buttons - hide "Saldo -> Service", keep "Levering afronden"
-  document.getElementById('step3Buttons').innerHTML = `
-    <button class="btn btn-secondary" onclick="openSaldoTransfer()">Saldo -> Service aanpassen</button>
-    <button class="btn btn-primary" onclick="finishDelivery()">Levering afronden</button>
-  `;
-}
-
-function finishDelivery() {
-  if (state.z156Source !== 'chauffeur') {
-    // Chauffeur didn't use "Saldo -> Service"
-    if (isAutoMode() && state.autoZ156 > 0) {
-      // NEW: show warning that balance was not transferred
-      document.getElementById('warningAmount').textContent = fmt(state.autoZ156);
-      document.getElementById('warningPopup').classList.add('visible');
-      return;
-    }
-    // CURRENT or autoZ156 = 0: Z156 stays at 0, no warning needed
-    state.z156 = 0;
-    state.z156Source = 'default';
-  }
-  doFinish();
-}
-
-function closeWarningAndGoBack() {
-  document.getElementById('warningPopup').classList.remove('visible');
-  // Chauffeur goes back and uses "Saldo -> Service" with pre-filled amount
-  openSaldoTransfer();
-}
-
-function confirmSkipBalance() {
-  document.getElementById('warningPopup').classList.remove('visible');
-  // Chauffeur explicitly chooses to skip - Z156 stays 0
-  state.z156 = 0;
-  state.z156Source = 'warned';
-  doFinish();
-}
-
-function doFinish() {
+function step4() {
   activateStep(4);
 
-  const retourWaarde = state.art1Price;
-  const nBonkoZ3719Before = state.totaal;
-  const nBonkoZ3719After = state.totaal - retourWaarde;
-  const nZ3819Reduction = nBonkoZ3719Before - nBonkoZ3719After;
-  const nAmountNotToPay = state.z156;
-  const nAmountForOriginalBonko = nZ3819Reduction - nAmountNotToPay;
-  const nAmountForServiceBonko = -1 * nAmountForOriginalBonko;
-  const earlyExit = nAmountForOriginalBonko === 0;
-
-  state.nAmountForOriginalBonko = nAmountForOriginalBonko;
-  state.nAmountForServiceBonko = nAmountForServiceBonko;
-  state.earlyExit = earlyExit;
-  state.retourWaarde = retourWaarde;
-
-  const z156Explanation = state.z156Source === 'chauffeur'
-    ? `<div class="info" style="margin-bottom:10px">
-        <strong>Z156 ingevuld door chauffeur via "Saldo -> Service"</strong><br>
-        Z156 = <strong>${fmt(state.z156)}</strong>
-        ${isAutoMode() && state.z156 !== state.autoZ156 ? `<br><span style="font-size:0.85em;color:#666">(Systeem had ${fmt(state.autoZ156)} voorgesteld, maar chauffeur heeft overschreven)</span>` : ''}
-      </div>`
-    : state.z156Source === 'warned'
-    ? `<div class="warning" style="margin-bottom:10px">
-        <strong>Z156 = 0 - chauffeur heeft de waarschuwing genegeerd</strong><br>
-        Het systeem stelde ${fmt(state.autoZ156)} voor, maar de chauffeur heeft bewust gekozen om het saldo niet over te brengen.
-      </div>`
-    : `<div class="warning" style="margin-bottom:10px">
-        <strong>Z156 = 0 (standaard)</strong><br>
-        Chauffeur heeft "Saldo -> Service" niet gebruikt.${state.autoZ156 > 0 ? ' Het systeem berekent niets automatisch.' : ''}
-      </div>`;
-
   document.getElementById('step4Content').innerHTML = `
-    ${z156Explanation}
-    <p style="font-size:0.9em;font-weight:600;margin-bottom:8px">FinishCurrentBonve draait nu:</p>
-    <table style="font-size:0.85em">
-      <tr><th style="width:60%">Stap</th><th style="text-align:right">Waarde</th></tr>
-      <tr style="background:#f0fdf4"><td>Chauffeur heeft geind (stap 3)</td><td class="num">${fmt(state.chauffeurPayment)}</td></tr>
-      <tr><td>1. Retourlijn -${fmt(retourWaarde)} aangemaakt op originele VK</td><td class="num"></td></tr>
-      <tr><td>2. nBonkoZ3719_Before (totaal voor levering)</td><td class="num">${fmt(nBonkoZ3719Before)}</td></tr>
-      <tr><td>3. nBonkoZ3719_After (totaal na levering)</td><td class="num">${fmt(nBonkoZ3719After)}</td></tr>
-      <tr><td>4. nZ3819Reduction (verschil)</td><td class="num">${fmt(nZ3819Reduction)}</td></tr>
-      <tr style="background:#eff6ff"><td>5. nAmountNotToPay (BONVE.Z156)</td><td class="num">${fmt(nAmountNotToPay)}</td></tr>
-      <tr style="background:#fefce8"><td>6. nAmountForOriginalBonko (${nZ3819Reduction} - ${nAmountNotToPay})</td><td class="num">${fmt(nAmountForOriginalBonko)}</td></tr>
-      <tr style="background:#fefce8"><td>7. nAmountForServiceBonko (-1 x bovenstaande)</td><td class="num">${fmt(nAmountForServiceBonko)}</td></tr>
-      <tr style="background:${earlyExit ? '#f0fdf4' : '#fef2f2'}">
-        <td>8. ${earlyExit ? 'nAmountForOriginalBonko = 0 -> EARLY EXIT (geen overdrachtslijnen)' : 'Overdrachtslijnen worden aangemaakt'}</td>
-        <td></td>
-      </tr>
-    </table>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="step5()">Bekijk resultaat</button>
+    <div class="phone-frame">
+      <h4>Wat de chauffeur ziet</h4>
+      <div style="text-align:center;padding:20px 10px;color:#555">
+        <div style="font-size:2em;margin-bottom:6px">&#9997;</div>
+        <p style="font-size:0.9em">Klant tekent voor ontvangst</p>
+      </div>
+      <button class="phone-btn grey" disabled>Handtekening ontvangen</button>
+    </div>
+    <div class="info">
+      Na de handtekening kan de chauffeur de levering afronden. Op dit moment kan hij ook
+      nog kiezen om het saldo over te zetten via "Saldo -> Service".
+    </div>
+    <p style="font-size:0.9em;margin-top:12px;font-weight:600">
+      Wat doet de chauffeur?
+    </p>
+    <div class="choice-row">
+      <div class="choice-card" onclick="openTransferScreen()">
+        <h4>Saldo overzetten en afronden</h4>
+        <p>De chauffeur klikt op "Saldo -> Service" en vult zelf een bedrag in.
+          Daarna rondt hij de levering af.</p>
+      </div>
+      <div class="choice-card" onclick="finishWithoutTransfer()">
+        <h4>Gewoon afronden</h4>
+        <p>De chauffeur rondt de levering direct af zonder het saldo over te zetten.
+          Het systeem verwerkt de retour automatisch via het overdrachtsartikel.</p>
+      </div>
     </div>
   `;
 }
 
-function step5() {
+function openTransferScreen() {
+  document.getElementById('step4Content').innerHTML = `
+    <div class="phone-frame">
+      <h4>Saldo -> Service</h4>
+      <div class="phone-field">
+        <span class="label">Resterend saldo</span>
+        <span class="value">${fmt(state.saldoNaBetaling)}</span>
+      </div>
+      <div class="phone-field">
+        <span class="label">Bedrag overzetten</span>
+        <span><input id="transferAmount" type="number" value="0" step="0.01"
+          style="width:120px;text-align:right;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:1em"></span>
+      </div>
+      <button class="phone-btn" onclick="confirmTransfer()">Overzetten</button>
+    </div>
+    <div class="warning">
+      Het veld staat standaard op <strong>0</strong>.
+      De chauffeur moet zelf het juiste bedrag uitrekenen en invullen. Er wordt geen bedrag voorgesteld.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="step4()">Annuleren</button>
+    </div>
+  `;
+}
+
+function confirmTransfer() {
+  state.z156 = parseFloat(document.getElementById('transferAmount').value) || 0;
+  state.transferDone = true;
+  showResult();
+}
+
+function finishWithoutTransfer() {
+  state.z156 = 0;
+  state.transferDone = false;
+  showResult();
+}
+
+// ── Step 5: Resultaat ──
+
+function showResult() {
   activateStep(5);
 
-  const { art1Name, art1Price, art2Name, art2Price, voorschot, totaal, retourWaarde,
-          nAmountForOriginalBonko, nAmountForServiceBonko, earlyExit, chauffeurPayment } = state;
+  const { art1Name, art1Price, art2Name, art2Price, voorschot, totaal, chauffeurPayment, z156 } = state;
+  const retourWaarde = art1Price;
 
-  // Original VK lines
+  // Overdrachtsartikel berekening
+  const overdracht = retourWaarde - z156;
+  const earlyExit = overdracht === 0;
+
+  // Originele VK
   let origLines = [
-    { nr: 1, name: art1Name, amount: art1Price, cls: '' },
-    { nr: 2, name: art2Name, amount: art2Price, cls: '' },
-    { nr: 3, name: `Retour ${art1Name}`, amount: -retourWaarde, cls: 'retour-line', tag: 'retour' },
+    { name: art1Name, amount: art1Price },
+    { name: art2Name, amount: art2Price },
+    { name: `Retour ${art1Name}`, amount: -retourWaarde, cls: 'retour-line', tag: 'retour' },
   ];
   if (!earlyExit) {
-    origLines.push({ nr: 4, name: 'Overdrachtsartikel', amount: nAmountForOriginalBonko, cls: 'overdracht-line', tag: 'overdracht' });
+    origLines.push({ name: 'Overdrachtsartikel', amount: overdracht, cls: 'overdracht-line', tag: 'overdracht' });
   }
   const origTotaal = origLines.reduce((s, l) => s + l.amount, 0);
   const origBetaald = voorschot + chauffeurPayment;
   const origSaldo = origTotaal - origBetaald;
 
-  // Service VK lines
+  // Service VK
   let servLines = [
-    { nr: 1, name: 'Service-artikel', amount: 0, cls: 'new-line', tag: 'service' },
-    { nr: 2, name: `RETOUR: ${art1Name}`, amount: 0, cls: 'new-line', tag: 'service' },
+    { name: 'Service-artikel', amount: 0, cls: 'new-line' },
+    { name: `RETOUR: ${art1Name}`, amount: 0, cls: 'new-line' },
   ];
   if (!earlyExit) {
-    servLines.push({ nr: 3, name: 'Overdrachtsartikel', amount: nAmountForServiceBonko, cls: 'overdracht-line', tag: 'overdracht' });
+    servLines.push({ name: 'Overdrachtsartikel', amount: -overdracht, cls: 'overdracht-line', tag: 'overdracht' });
   }
   const servTotaal = servLines.reduce((s, l) => s + l.amount, 0);
   const servSaldo = servTotaal;
@@ -615,62 +533,67 @@ function step5() {
   state.origSaldo = origSaldo;
   state.servSaldo = servSaldo;
   state.origTotaal = origTotaal;
-  state.servTotaal = servTotaal;
-
-  function renderVK(title, lines, totaal, payments, saldo) {
-    const saldoClass = saldo === 0 ? 'ok' : (saldo < 0 ? 'credit' : 'open');
-    const saldoLabel = saldo === 0 ? 'Afgehandeld' : (saldo < 0 ? 'Tegoed klant' : 'Open');
-    let html = `<div class="vk-card"><h4>${title}</h4><table>
-      <tr><th>Lijn</th><th>Artikel</th><th style="text-align:right">Bedrag</th></tr>`;
-    lines.forEach(l => {
-      const tagHtml = l.tag ? ` <span class="tag tag-${l.tag}">${l.tag}</span>` : '';
-      html += `<tr class="${l.cls}"><td>${l.nr}</td><td>${l.name}${tagHtml}</td><td class="num">${fmt(l.amount)}</td></tr>`;
-    });
-    html += `<tr class="totaal"><td></td><td>Totaal verkooplijnen</td><td class="num">${fmt(totaal)}</td></tr>`;
-    payments.forEach(p => {
-      html += `<tr><td></td><td>${p.name}</td><td class="num">-${fmt(p.amount)}</td></tr>`;
-    });
-    html += `<tr class="saldo ${saldoClass}"><td></td><td>Saldo (${saldoLabel})</td><td class="num">${fmt(saldo)}</td></tr>`;
-    html += `</table></div>`;
-    return html;
-  }
+  state.earlyExit = earlyExit;
+  state.overdracht = overdracht;
 
   const origPayments = [];
   if (voorschot > 0) origPayments.push({ name: 'Voorschot', amount: voorschot });
   if (chauffeurPayment > 0) origPayments.push({ name: 'Betaling bij levering', amount: chauffeurPayment });
 
-  let html = '<div class="comparison">';
-  html += renderVK('VK 1234 (origineel)', origLines, origTotaal, origPayments, origSaldo);
-  html += renderVK('VK 12341 (service)', servLines, servTotaal, [], servSaldo);
-  html += '</div>';
+  let html = '';
 
-  // Net result
-  const netto = origSaldo + servSaldo;
-  html += `<table style="margin-top:12px;font-size:0.9em">
-    <tr><td>Netto saldo (origineel + service)</td><td class="num" style="font-weight:700">${fmt(netto)}</td></tr>
-    <tr><td>Klant ontving goederen ter waarde van</td><td class="num">${fmt(art2Price)}</td></tr>
-    <tr><td>Klant betaalde in totaal</td><td class="num">${fmt(origBetaald)}</td></tr>
-  </table>`;
-
-  if (origSaldo > 0) {
-    html += `<div class="warning">De originele VK staat <strong>${fmt(origSaldo)} open</strong>.
-      ${servSaldo < 0 ? `Dit wordt gecompenseerd door de service VK (${fmt(servSaldo)}), maar dat is niet zichtbaar op de originele VK.` : ''}</div>`;
-  }
-  if (origSaldo < 0) {
-    html += `<div class="warning">De originele VK staat <strong>${fmt(origSaldo)} negatief</strong>.
-      De klant heeft meer betaald dan de waarde van de geleverde goederen.</div>`;
-  }
-  if (origSaldo === 0 && servSaldo === 0) {
-    html += `<div class="info">Beide VKs zijn proper afgesloten. Geen verdere actie nodig.</div>`;
-  }
-  if (origSaldo === 0 && servSaldo < 0) {
-    html += `<div class="info">Originele VK is proper afgesloten. De service VK heeft ${fmt(servSaldo)} - hiervoor kan een creditnota opgemaakt worden, of een vervangartikel worden toegevoegd.</div>`;
+  if (state.transferDone) {
+    html += `<div class="info">
+      <strong>Saldo overgezet:</strong> ${fmt(z156)} naar de service-verkoop.
+    </div>`;
+  } else {
+    html += `<div class="warning">
+      <strong>Saldo niet overgezet.</strong> Het overdrachtsartikel (+${fmt(overdracht)}) neutraliseert de retourlijn
+      op de originele verkoop.
+    </div>`;
   }
 
-  html += `<div class="btn-row"><button class="btn btn-primary" onclick="step6()">Vervangartikel toevoegen aan service VK</button></div>`;
+  html += `<div class="comparison">`;
+  html += renderVK(
+    'Originele verkoop',
+    origLines, origTotaal, origPayments, origSaldo,
+    { highlight: state.transferDone ? 'totaal' : null }
+  );
+  html += renderVK(
+    'Service-verkoop (nieuw)',
+    servLines, servTotaal, [], servSaldo
+  );
+  html += `</div>`;
+
+  if (state.transferDone) {
+    if (origSaldo === 0 && servSaldo <= 0) {
+      html += `<div class="success">
+        <strong>Originele verkoop is afgesloten</strong> (saldo 0).
+        ${servSaldo < 0 ? `De service-verkoop heeft een tegoed van ${fmt(Math.abs(servSaldo))} - dit wordt verrekend bij de vervolglevering.` : ''}
+      </div>`;
+    }
+    html += `<div class="warning" style="margin-top:8px">
+      <strong>Let op:</strong> het totaal van de originele verkoop is veranderd van ${fmt(totaal)} naar
+      ${fmt(origTotaal)} (<span style="color:#dc2626">*</span>).
+      Dit beïnvloedt de statistiekwaarde van deze verkoop.
+    </div>`;
+  } else {
+    html += `<div class="warning">
+      <strong>Let op:</strong> de originele verkoop staat nog <strong>${fmt(origSaldo)} open</strong>.
+      Het totaal is ${fmt(origTotaal)} (statistiekwaarde ongewijzigd ten opzichte van ${fmt(totaal)}),
+      maar het openstaande saldo is niet zichtbaar op de service-verkoop.
+    </div>`;
+  }
+
+  html += `<div class="btn-row">
+    <button class="btn btn-primary" onclick="step6()">Bekijk vervolglevering</button>
+    <button class="btn btn-secondary" onclick="step4()">Opnieuw proberen (andere keuze)</button>
+  </div>`;
 
   document.getElementById('step5Content').innerHTML = html;
 }
+
+// ── Step 6: Vervolglevering ──
 
 function step6() {
   activateStep(6);
@@ -678,76 +601,96 @@ function step6() {
   const replName = document.getElementById('replName').value || 'Vervangartikel';
   const replPrice = parseFloat(document.getElementById('replPrice').value) || 0;
 
-  const { art1Name, nAmountForServiceBonko, earlyExit, servSaldo } = state;
+  const { art1Name, overdracht, earlyExit, origSaldo, servSaldo, voorschot, chauffeurPayment } = state;
 
+  // Service VK met vervangartikel
   let servLines = [
-    { nr: 1, name: 'Service-artikel', amount: 0, cls: 'new-line', tag: 'service' },
-    { nr: 2, name: `RETOUR: ${art1Name}`, amount: 0, cls: 'new-line', tag: 'service' },
+    { name: 'Service-artikel', amount: 0, cls: 'new-line' },
+    { name: `RETOUR: ${state.art1Name}`, amount: 0, cls: 'new-line' },
   ];
   if (!earlyExit) {
-    servLines.push({ nr: 3, name: 'Overdrachtsartikel', amount: nAmountForServiceBonko, cls: 'overdracht-line', tag: 'overdracht' });
+    servLines.push({ name: 'Overdrachtsartikel', amount: -overdracht, cls: 'overdracht-line', tag: 'overdracht' });
   }
-  const nextNr = servLines.length + 1;
-  servLines.push({ nr: nextNr, name: replName, amount: replPrice, cls: 'new-line', tag: 'new' });
+  servLines.push({ name: replName, amount: replPrice, cls: 'new-line', tag: 'new' });
 
-  const newServTotaal = servLines.reduce((s, l) => s + l.amount, 0);
-  const servSaldoNaVervanging = newServTotaal;
+  const servTotaal = servLines.reduce((s, l) => s + l.amount, 0);
+  const servSaldoNaVervanging = servTotaal;
 
-  const saldoClass = servSaldoNaVervanging === 0 ? 'ok' : (servSaldoNaVervanging < 0 ? 'credit' : 'open');
-  const saldoLabel = servSaldoNaVervanging === 0 ? 'Afgehandeld' : (servSaldoNaVervanging < 0 ? 'Tegoed klant' : 'Te innen bij levering');
+  let html = '';
 
-  let html = `<div class="comparison">`;
+  html += `<p style="font-size:0.9em;margin-bottom:8px">
+    Het vervangartikel (<strong>${replName}</strong>, ${fmt(replPrice)}) wordt toegevoegd aan de service-verkoop.
+    De chauffeur bij de vervolglevering ziet het volgende:
+  </p>`;
 
-  // Original VK (unchanged)
-  const origSaldoClass = state.origSaldo === 0 ? 'ok' : (state.origSaldo < 0 ? 'credit' : 'open');
-  const origSaldoLabel = state.origSaldo === 0 ? 'Afgehandeld' : (state.origSaldo < 0 ? 'Tegoed klant' : 'Open');
-  html += `<div class="vk-card"><h4>VK 1234 (origineel) - ongewijzigd</h4>
+  html += `<div class="comparison">`;
+
+  // Originele VK samengevat
+  const origSaldoClass = origSaldo === 0 ? 'ok' : (origSaldo < 0 ? 'credit' : 'open');
+  const origSaldoLabel = origSaldo === 0 ? 'Afgehandeld' : (origSaldo < 0 ? 'Tegoed klant' : 'Openstaand');
+  html += `<div class="vk-card"><h4>Originele verkoop</h4>
     <table>
-      <tr class="saldo ${origSaldoClass}"><td></td><td>Saldo (${origSaldoLabel})</td><td class="num">${fmt(state.origSaldo)}</td></tr>
+      <tr class="saldo ${origSaldoClass}"><td>Saldo (${origSaldoLabel})</td><td class="num">${fmt(origSaldo)}</td></tr>
     </table>
+    <p style="font-size:0.8em;color:#666;margin-top:4px">De chauffeur bij de vervolglevering ziet deze verkoop niet.</p>
   </div>`;
 
-  // Service VK with replacement
-  html += `<div class="vk-card"><h4>VK 12341 (service) - met vervanging</h4><table>
-    <tr><th>Lijn</th><th>Artikel</th><th style="text-align:right">Bedrag</th></tr>`;
+  // Service VK met vervangartikel
+  const saldoClass = servSaldoNaVervanging === 0 ? 'ok' : (servSaldoNaVervanging < 0 ? 'credit' : 'open');
+  const saldoLabel = servSaldoNaVervanging === 0 ? 'Afgehandeld' : (servSaldoNaVervanging < 0 ? 'Tegoed klant' : 'Te innen');
+  html += `<div class="vk-card"><h4>Service-verkoop - wat de chauffeur ziet</h4><table>
+    <tr><th>Artikel</th><th style="text-align:right">Bedrag</th></tr>`;
   servLines.forEach(l => {
     const tagHtml = l.tag ? ` <span class="tag tag-${l.tag}">${l.tag}</span>` : '';
-    html += `<tr class="${l.cls}"><td>${l.nr}</td><td>${l.name}${tagHtml}</td><td class="num">${fmt(l.amount)}</td></tr>`;
+    html += `<tr class="${l.cls || ''}"><td>${l.name}${tagHtml}</td><td class="num">${fmt(l.amount)}</td></tr>`;
   });
-  html += `<tr class="totaal"><td></td><td>Totaal verkooplijnen</td><td class="num">${fmt(newServTotaal)}</td></tr>`;
-  html += `<tr class="saldo ${saldoClass}"><td></td><td>Saldo (${saldoLabel})</td><td class="num">${fmt(servSaldoNaVervanging)}</td></tr>`;
+  html += `<tr class="totaal"><td>Totaal</td><td class="num">${fmt(servTotaal)}</td></tr>`;
+  html += `<tr class="saldo ${saldoClass}"><td>Saldo (${saldoLabel})</td><td class="num">${fmt(servSaldoNaVervanging)}</td></tr>`;
   html += `</table></div>`;
   html += `</div>`;
 
-  // Summary
-  const totaalKlantBetaald = state.voorschot + state.chauffeurPayment;
+  // Samenvatting
+  const totaalBetaald = voorschot + chauffeurPayment;
   const totaalGoederen = state.art2Price + replPrice;
-  const nogTeInnen = servSaldoNaVervanging > 0 ? servSaldoNaVervanging : 0;
-  const nogTeCrediteren = servSaldoNaVervanging < 0 ? Math.abs(servSaldoNaVervanging) : 0;
 
-  html += `<table style="margin-top:12px;font-size:0.9em">
-    <tr><td>Waarde geleverde goederen (${state.art2Name} + ${replName})</td><td class="num" style="font-weight:700">${fmt(totaalGoederen)}</td></tr>
-    <tr><td>Klant betaalde tot nu toe</td><td class="num">${fmt(totaalKlantBetaald)}</td></tr>
-    ${state.origSaldo > 0 ? `<tr><td style="color:#dc2626">Openstaand op originele VK</td><td class="num" style="color:#dc2626">${fmt(state.origSaldo)}</td></tr>` : ''}
-    ${nogTeInnen > 0 ? `<tr><td style="color:#dc2626">Chauffeur int bij vervolglevering</td><td class="num" style="font-weight:700;color:#dc2626">${fmt(nogTeInnen)}</td></tr>` : ''}
-    ${nogTeCrediteren > 0 ? `<tr><td style="color:#2563eb">Creditnota voor klant</td><td class="num" style="font-weight:700;color:#2563eb">${fmt(nogTeCrediteren)}</td></tr>` : ''}
-    ${servSaldoNaVervanging === 0 && state.origSaldo === 0 ? `<tr><td style="color:#16a34a" colspan="2"><strong>Alles sluit perfect af - geen openstaande saldo's</strong></td></tr>` : ''}
+  html += `<table style="margin-top:16px;font-size:0.92em">
+    <tr><td>Waarde geleverde goederen</td><td class="num" style="font-weight:700">${fmt(totaalGoederen)}</td></tr>
+    <tr><td>Klant betaalde tot nu toe</td><td class="num">${fmt(totaalBetaald)}</td></tr>
+    <tr><td>Klant moet nog betalen</td><td class="num" style="font-weight:700">${fmt(totaalGoederen - totaalBetaald)}</td></tr>
   </table>`;
 
-  if (state.origSaldo > 0 && servSaldoNaVervanging === 0) {
-    html += `<div class="warning">Probleem: de chauffeur bij de vervolglevering ziet saldo 0 op de service VK en int niets.
-      Maar er staat nog <strong>${fmt(state.origSaldo)} open op de originele VK</strong> die niemand gaat innen!</div>`;
+  if (origSaldo > 0 && servSaldoNaVervanging === 0) {
+    html += `<div class="error">
+      <strong>Probleem:</strong> de chauffeur bij de vervolglevering ziet saldo <strong>0</strong> op de
+      service-verkoop en int niets. Maar de klant moet eigenlijk nog <strong>${fmt(totaalGoederen - totaalBetaald)}</strong>
+      betalen - dat bedrag staat "verstopt" op de originele verkoop.
+    </div>`;
+  } else if (origSaldo > 0 && servSaldoNaVervanging > 0) {
+    html += `<div class="error">
+      <strong>Probleem:</strong> er staat ${fmt(origSaldo)} open op de originele verkoop EN
+      ${fmt(servSaldoNaVervanging)} op de service-verkoop. Verwarrend: welk bedrag moet de chauffeur innen?
+    </div>`;
+  } else if (origSaldo === 0 && servSaldoNaVervanging > 0) {
+    html += `<div class="success">
+      <strong>Correct:</strong> de chauffeur int <strong>${fmt(servSaldoNaVervanging)}</strong> bij
+      de vervolglevering. De originele verkoop is afgesloten.
+    </div>`;
+  } else if (origSaldo === 0 && servSaldoNaVervanging === 0) {
+    html += `<div class="success">
+      <strong>Correct:</strong> de klant heeft al volledig betaald. De chauffeur levert het
+      vervangartikel af zonder verdere betaling.
+    </div>`;
+  } else if (origSaldo === 0 && servSaldoNaVervanging < 0) {
+    html += `<div class="info">
+      De originele verkoop is afgesloten. De service-verkoop heeft een tegoed van
+      <strong>${fmt(Math.abs(servSaldoNaVervanging))}</strong> voor de klant (creditnota).
+    </div>`;
   }
-  if (state.origSaldo > 0 && servSaldoNaVervanging > 0) {
-    html += `<div class="warning">Probleem: er staat ${fmt(state.origSaldo)} open op de originele VK EN ${fmt(servSaldoNaVervanging)} op de service VK.
-      Verwarrend: welk bedrag moet de chauffeur innen?</div>`;
-  }
-  if (state.origSaldo === 0 && servSaldoNaVervanging > 0) {
-    html += `<div class="info">Originele VK is afgesloten. De chauffeur int <strong>${fmt(servSaldoNaVervanging)}</strong> bij de vervolglevering van de service VK.</div>`;
-  }
-  if (state.origSaldo === 0 && servSaldoNaVervanging === 0) {
-    html += `<div class="info">Beide VKs sluiten perfect af. De klant heeft al volledig betaald - de chauffeur levert gewoon het vervangartikel af.</div>`;
-  }
+
+  html += `<div class="btn-row" style="margin-top:16px">
+    <button class="btn btn-secondary" onclick="step4()">Opnieuw proberen (andere keuze)</button>
+    <button class="btn btn-secondary" onclick="resetAll(); startSimulation();">Scenario wijzigen</button>
+  </div>`;
 
   document.getElementById('step6Content').innerHTML = html;
 }
